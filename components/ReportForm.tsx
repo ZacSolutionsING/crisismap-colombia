@@ -9,36 +9,7 @@ import {
   SUPPLY_STATUS_LABELS,
   LocationCategory,
 } from "@/lib/supabaseClient";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-// Corregir iconos de Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
-
-// Componente para seleccionar ubicación en el mapa
-// Componente para seleccionar ubicación en el mapa
-function LocationPicker({
-  onLocationSelect,
-}: {
-  onLocationSelect: (lat: number, lng: number) => void;
-}) {
-  useMapEvents({
-    click(e) {
-      const { lat, lng } = e.latlng;
-      onLocationSelect(lat, lng);
-    },
-  });
-  return null;
-}
 
 interface ReportFormProps {
   isOpen: boolean;
@@ -70,44 +41,119 @@ export default function ReportForm({
   const [mapCenter, setMapCenter] = useState<[number, number]>([
     4.5709, -74.2973,
   ]);
+  const [isClient, setIsClient] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
+  const markerRef = useRef<L.Marker | null>(null);
+
+  // Configurar Leaflet solo en el cliente
+  useEffect(() => {
+    const L = require("leaflet");
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconRetinaUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
+      iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
+    });
+    setIsClient(true);
+  }, []);
+
+  // Inicializar el mapa cuando el formulario esté abierto
+  useEffect(() => {
+    if (!isClient || !isOpen || !mapContainerRef.current) return;
+
+    const L = require("leaflet");
+
+    const map = L.map(mapContainerRef.current, {
+      center: mapCenter,
+      zoom: 14,
+      zoomControl: false,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+    }).addTo(map);
+
+    mapInstanceRef.current = map;
+
+    // Si ya hay una ubicación seleccionada, mostrar el marcador
+    if (latitude !== null && longitude !== null) {
+      const marker = L.marker([latitude, longitude]).addTo(map);
+      markerRef.current = marker;
+    }
+
+    // Evento click en el mapa para seleccionar ubicación
+    map.on("click", (e: any) => {
+      const { lat, lng } = e.latlng;
+      // Eliminar marcador anterior
+      if (markerRef.current) {
+        markerRef.current.remove();
+      }
+      // Crear nuevo marcador
+      const marker = L.marker([lat, lng]).addTo(map);
+      markerRef.current = marker;
+      setLatitude(lat);
+      setLongitude(lng);
+      setMapCenter([lat, lng]);
+    });
+
+    // Limpieza al cerrar o desmontar
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+      markerRef.current = null;
+    };
+  }, [isOpen, isClient]);
+
+  // Actualizar centro del mapa cuando cambie
+  useEffect(() => {
+    const map = mapInstanceRef.current;
+    if (!map) return;
+    map.flyTo(mapCenter, 14);
+  }, [mapCenter]);
 
   // Obtener ubicación al abrir el formulario
   useEffect(() => {
-    if (isOpen) {
-      setIsLocating(true);
-      setLocationError(null);
+    if (!isClient || !isOpen) return;
 
-      if (!navigator.geolocation) {
-        setLocationError("Tu navegador no soporta geolocalización");
-        setIsLocating(false);
-        return;
-      }
+    setIsLocating(true);
+    setLocationError(null);
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          setLatitude(latitude);
-          setLongitude(longitude);
-          setMapCenter([latitude, longitude]);
-          setIsLocating(false);
-        },
-        (error) => {
-          console.warn("Error de geolocalización:", error);
-          setLocationError(
-            "No pudimos obtener tu ubicación. Puedes seleccionarla en el mapa.",
-          );
-          setIsLocating(false);
-          // Mantener Colombia como centro
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000,
-        },
-      );
+    if (!navigator.geolocation) {
+      setLocationError("Tu navegador no soporta geolocalización");
+      setIsLocating(false);
+      return;
     }
-  }, [isOpen]);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setLatitude(latitude);
+        setLongitude(longitude);
+        setMapCenter([latitude, longitude]);
+        setIsLocating(false);
+      },
+      (error) => {
+        console.warn("Error de geolocalización:", error);
+        setLocationError(
+          "No pudimos obtener tu ubicación. Puedes seleccionarla en el mapa.",
+        );
+        setIsLocating(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 60000,
+      },
+    );
+  }, [isOpen, isClient]);
 
   // Resetear formulario al cerrar
   useEffect(() => {
@@ -126,25 +172,15 @@ export default function ReportForm({
     }
   }, [isOpen]);
 
-  // Manejar selección de ubicación en el mapa
-  const handleLocationSelect = (lat: number, lng: number) => {
-    setLatitude(lat);
-    setLongitude(lng);
-    setMapCenter([lat, lng]);
-  };
-
-  // Manejar cambio de suministros
   const handleSupplyChange = (supply: string, status: string) => {
     setSupplies((prev) => ({ ...prev, [supply]: status }));
   };
 
-  // Manejar envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
 
-    // Validaciones
     if (!category) {
       setError("Por favor selecciona una categoría");
       setIsSubmitting(false);
@@ -175,7 +211,6 @@ export default function ReportForm({
       return;
     }
 
-    // Construir FormData
     const formData = new FormData();
     formData.append("title", title.trim());
     formData.append("category", category);
@@ -183,7 +218,6 @@ export default function ReportForm({
     formData.append("latitude", String(latitude));
     formData.append("longitude", String(longitude));
 
-    // Añadir suministros solo si es un punto de acopio
     if (category === "acopio_necesidad" || category === "acopio_lleno") {
       const suppliesToSend: Record<string, string> = {};
       for (const [key, value] of Object.entries(supplies)) {
@@ -205,14 +239,12 @@ export default function ReportForm({
     setSuccess(true);
     setIsSubmitting(false);
 
-    // Esperar un momento y cerrar
     setTimeout(() => {
       onReportCreated();
       onClose();
     }, 1500);
   };
 
-  // Mostrar estado de suministros solo para puntos de acopio
   const showSupplies =
     category === "acopio_necesidad" || category === "acopio_lleno";
 
@@ -247,14 +279,12 @@ export default function ReportForm({
 
         {/* Contenido */}
         <form ref={formRef} onSubmit={handleSubmit} className="p-4 space-y-4">
-          {/* Éxito */}
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg text-sm">
               ✅ ¡Reporte creado exitosamente!
             </div>
           )}
 
-          {/* Error */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg text-sm">
               {error}
@@ -339,21 +369,7 @@ export default function ReportForm({
             ) : null}
 
             <div className="h-52 rounded-lg overflow-hidden border border-gray-300">
-              <MapContainer
-                center={mapCenter}
-                zoom={14}
-                style={{ height: "100%", width: "100%" }}
-                zoomControl={false}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>'
-                />
-                <LocationPicker onLocationSelect={handleLocationSelect} />
-                {latitude && longitude && (
-                  <Marker position={[latitude, longitude]} />
-                )}
-              </MapContainer>
+              <div ref={mapContainerRef} className="w-full h-full" />
             </div>
             <p className="text-xs text-gray-500 mt-1">
               Toca el mapa para seleccionar la ubicación exacta

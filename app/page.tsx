@@ -3,8 +3,16 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import ReportForm from "@/components/ReportForm";
-import NeedsList from "@/components/NeedsList";
+const DynamicNeedsList = dynamic(() => import("@/components/NeedsList"), {
+  ssr: false,
+  loading: () => (
+    <div className="p-4 text-gray-500 text-sm">Cargando necesidades...</div>
+  ),
+});
+
+const DynamicReportForm = dynamic(() => import("@/components/ReportForm"), {
+  ssr: false,
+});
 import { getActiveLocations } from "./actions";
 import { Location } from "@/lib/supabaseClient";
 
@@ -151,13 +159,13 @@ export default function Home() {
       </div>
 
       <div className="flex-1">
-        <NeedsList
+        <DynamicNeedsList
           onLocationSelect={handleLocationSelect}
           refreshTrigger={refreshTrigger}
         />
       </div>
 
-      <ReportForm
+      <DynamicReportForm
         isOpen={isReportFormOpen}
         onClose={() => setIsReportFormOpen(false)}
         onReportCreated={handleReportCreated}
@@ -169,5 +177,3 @@ export default function Home() {
     </main>
   );
 }
-
-export const dynamic = "force-dynamic";
