@@ -197,34 +197,17 @@ export async function getActiveLocations() {
 }
 
 export async function getUrgentNeeds() {
-  try {
-    // Buscar puntos de acopio con necesidades críticas
-    const { data, error } = await supabase
-      .from("locations")
-      .select(
-        "id, title, description, latitude, longitude, supplies_status, upvotes, updated_at, expires_at, category",
-      )
-      .eq("category", "acopio_necesidad")
-      .gt("expires_at", new Date().toISOString())
-      .order("updated_at", { ascending: false })
-      .limit(20);
+  const { data, error } = await supabase
+    .from("locations")
+    .select(
+      "id, title, category, description, latitude, longitude, supplies_status, upvotes, created_at, updated_at, expires_at",
+    )
+    .gt("expires_at", new Date().toISOString())
+    .order("upvotes", { ascending: false })
+    .limit(10);
 
-    if (error) {
-      console.error("Error al obtener necesidades urgentes:", error);
-      return { error: "No pudimos cargar las necesidades urgentes" };
-    }
-
-    // Filtrar los que tienen al menos un insumo crítico
-    const urgentNeeds = data?.filter((location) => {
-      if (!location.supplies_status) return false;
-      return Object.values(location.supplies_status).some(
-        (status) => status === "critico",
-      );
-    });
-
-    return { data: urgentNeeds };
-  } catch (error) {
-    console.error("Error en getUrgentNeeds:", error);
-    return { error: "Error al cargar las necesidades" };
+  if (error) {
+    return { error: error.message };
   }
+  return { data };
 }

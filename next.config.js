@@ -3,7 +3,6 @@ const nextConfig = {
   output: "standalone",
   poweredByHeader: false,
   reactStrictMode: true,
-  swcMinify: true,
   experimental: {
     serverActions: {
       allowedOrigins: ["localhost:3000"],

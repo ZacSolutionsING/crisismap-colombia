@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚨 CrisisMap Colombia (MVP)
 
 > **Aplicación PWA móvil ultrarrápida de apoyo visual y reporte en tiempo real para situaciones de emergencia y desastres naturales (sismos, derrumbes, inundaciones).**
@@ -87,3 +88,7 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el 
 Puedes empezar a editar la página modificando `app/page.tsx`. La página se actualiza automáticamente a medida que editas el archivo.
 
 Este proyecto utiliza [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) para optimizar y cargar automáticamente [Geist](https://vercel.com/font), una nueva familia tipográfica de Vercel.
+=======
+# crisismap-colombia
+App de reporte de emergencias para Colombia
+>>>>>>> f6fd47e30318d5acb1dcee91733b147c36e9b0e7

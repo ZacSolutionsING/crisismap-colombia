@@ -25,12 +25,13 @@ L.Icon.Default.mergeOptions({
 });
 
 // Componente para seleccionar ubicación en el mapa
+// Componente para seleccionar ubicación en el mapa
 function LocationPicker({
   onLocationSelect,
 }: {
   onLocationSelect: (lat: number, lng: number) => void;
 }) {
-  const map = useMapEvents({
+  useMapEvents({
     click(e) {
       const { lat, lng } = e.latlng;
       onLocationSelect(lat, lng);

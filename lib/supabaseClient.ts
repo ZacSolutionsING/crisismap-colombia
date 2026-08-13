@@ -28,7 +28,7 @@ export type Location = {
   longitude: number;
   supplies_status: SuppliesStatus | null;
   upvotes: number;
-  created_at: string;
+  created_at?: string;
   updated_at: string;
   expires_at: string;
 };
