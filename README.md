@@ -1,7 +1,6 @@
-<<<<<<< HEAD
 # 🚨 CrisisMap Colombia (MVP)
 
-> **Aplicación PWA móvil ultrarrápida de apoyo visual y reporte en tiempo real para situaciones de emergencia y desastres naturales (sismos, derrumbes, inundaciones).**
+> Plataforma de mapeo colaborativo de emergencias y crisis en Colombia. Permite a los ciudadanos reportar y visualizar en tiempo real puntos críticos como vías bloqueadas, zonas de riesgo estructural y puntos de acopio de suministros.
 
 [![Next.js](https://img.shields.io/badge/Next.js-14_App_Router-black?logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?logo=typescript)](https://www.typescriptlang.org/)
@@ -22,6 +21,16 @@ En una situación de emergencia, **el tiempo y la simplicidad salvan vidas**. La
 - 📦 **Identificar puntos de acopio** e informar sus necesidades críticas en tiempo real.
 - 📋 **Consultar necesidades urgentes** mediante un panel deslizable priorizado.
 - 👍 **Confirmar reportes (+1)** de otros ciudadanos para validar su veracidad sin crear cuentas de usuario.
+
+## ✨ Características
+
+- **Mapa interactivo** con Leaflet que muestra reportes activos.
+- **Reporte rápido** de emergencias con geolocalización.
+- **Lista de necesidades urgentes** actualizada en tiempo real.
+- **Sistema de confirmación** (upvotes) para validar reportes.
+- **Autenticación** (opcional, para futuras mejoras) y **políticas RLS** en Supabase.
+- **Diseño mobile-first** con Tailwind CSS.
+- **Despliegue continuo** en Vercel.
 
 ---
 
@@ -87,8 +96,8 @@ Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el 
 
 Puedes empezar a editar la página modificando `app/page.tsx`. La página se actualiza automáticamente a medida que editas el archivo.
 
-Este proyecto utiliza [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) para optimizar y cargar automáticamente [Geist](https://vercel.com/font), una nueva familia tipográfica de Vercel.
-=======
+# Este proyecto utiliza [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) para optimizar y cargar automáticamente [Geist](https://vercel.com/font), una nueva familia tipográfica de Vercel.
+
 # crisismap-colombia
+
 App de reporte de emergencias para Colombia
->>>>>>> f6fd47e30318d5acb1dcee91733b147c36e9b0e7
