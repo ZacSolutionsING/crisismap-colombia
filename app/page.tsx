@@ -3,13 +3,12 @@
 
 import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
-import CrisisMap from "@/components/CrisisMap";
 import ReportForm from "@/components/ReportForm";
 import NeedsList from "@/components/NeedsList";
 import { getActiveLocations } from "./actions";
 import { Location } from "@/lib/supabaseClient";
 
-// Importar Leaflet dinámicamente
+// Importar CrisisMap dinámicamente (sin SSR)
 const DynamicCrisisMap = dynamic(() => import("@/components/CrisisMap"), {
   ssr: false,
   loading: () => (
@@ -59,18 +58,15 @@ export default function Home() {
 
   const handleLocationSelect = (location: Location) => {
     setSelectedLocation(location);
-    // Scroll al mapa si estamos en móvil
     const mapElement = document.getElementById("map-container");
     if (mapElement) {
       mapElement.scrollIntoView({ behavior: "smooth", block: "center" });
     }
-    // Limpiar selección después de un tiempo
     setTimeout(() => setSelectedLocation(null), 4000);
   };
 
   return (
     <main className="flex flex-col min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="sticky top-0 z-50 bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center justify-between">
           <div>
@@ -87,7 +83,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Mapa */}
       <div
         id="map-container"
         className="relative w-full"
@@ -123,7 +118,6 @@ export default function Home() {
           />
         )}
 
-        {/* Botón flotante de reporte */}
         <button
           onClick={() => setIsReportFormOpen(true)}
           className="absolute bottom-4 right-4 z-[1000] bg-red-600 hover:bg-red-700 text-white rounded-full p-4 shadow-lg transition-all hover:scale-105 active:scale-95 flex items-center justify-center"
@@ -156,7 +150,6 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Necesidades urgentes */}
       <div className="flex-1">
         <NeedsList
           onLocationSelect={handleLocationSelect}
@@ -164,14 +157,12 @@ export default function Home() {
         />
       </div>
 
-      {/* Formulario de reporte */}
       <ReportForm
         isOpen={isReportFormOpen}
         onClose={() => setIsReportFormOpen(false)}
         onReportCreated={handleReportCreated}
       />
 
-      {/* Pie de página simple */}
       <footer className="text-center py-3 text-xs text-gray-400 bg-white border-t border-gray-200">
         CrisisMap Colombia v1.0 · Reportes útiles por 12 horas
       </footer>
