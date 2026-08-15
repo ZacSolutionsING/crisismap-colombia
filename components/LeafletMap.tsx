@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { MapContainer, MapContainerProps } from "react-leaflet";
+import type { Map as LeafletMapType } from "leaflet"; // ← cambiado el nombre
 import "leaflet/dist/leaflet.css";
 
 interface LeafletMapProps extends MapContainerProps {
@@ -10,10 +11,9 @@ interface LeafletMapProps extends MapContainerProps {
 
 export default function LeafletMap({ children, ...props }: LeafletMapProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapRef = useRef<LeafletMapType | null>(null); // ← usa el nuevo nombre
 
   useEffect(() => {
-    // Forzar limpieza al desmontar
     return () => {
       if (mapRef.current) {
         try {
@@ -22,7 +22,6 @@ export default function LeafletMap({ children, ...props }: LeafletMapProps) {
         mapRef.current = null;
       }
       if (containerRef.current) {
-        // Eliminar cualquier hijo residual
         while (containerRef.current.firstChild) {
           containerRef.current.removeChild(containerRef.current.firstChild);
         }
@@ -34,7 +33,7 @@ export default function LeafletMap({ children, ...props }: LeafletMapProps) {
     <div ref={containerRef} className="w-full h-full">
       <MapContainer
         {...props}
-        whenCreated={(map) => {
+        ref={(map) => {
           mapRef.current = map;
         }}
       >

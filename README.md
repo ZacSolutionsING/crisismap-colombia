@@ -81,7 +81,7 @@ crisismap-colombia/
 ## 🛠️ Primeros pasos
 
 Primero, inicia el servidor de desarrollo:
-
+h
 ```bash
 npm run dev
 # o
@@ -92,4 +92,8 @@ pnpm dev
 bun dev
 ````
 
-Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
+🤝 Contribución
+Si deseas contribuir, por favor abre un issue o envía un pull request. Asegúrate de seguir el estilo de código y de probar tus cambios localmente.
+
+📬 Contacto
+Desarrollado por [SolumatIA]
